@@ -1,0 +1,195 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# Make extended filename pattern matching available
+shopt -s extglob
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+export TMPDIR="${HOME}/tmp"
+
+ulimit -s unlimited		#  Without this, geomview croaks on big OOGL files
+# ulimit -S -v 10000000
+
+export LC_COLLATE=C
+
+export MORE=-pc
+export EDITOR=emacs
+export PAGER=less
+# export LESS=-c
+export LESS=R
+# export LESS="-iMSx4 -FX"
+
+#
+# Ansible stuff
+#
+
+ANSIBLE_FORCE_COLOR=True
+
+#
+# Path stuff
+#
+# https://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path
+#
+
+PATH="${HOME}/bin:${HOME}/.local/bin:$PATH"
+
+
+#export JAVA_HOME=/usr/java/jdk1.6.0_26/
+export JAVA_HOME=/etc/alternatives/java_sdk
+#LD_LIBRARY_PATH="/usr/local/lib/${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH:+:}}"
+LD_LIBRARY_PATH="/usr/local/lib/:${JAVA_HOME}/jre/lib/amd64/server/:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH:+:}}"
+
+# Set up for Clozure Common Lisp
+PATH="${PATH:+${PATH}:}/opt/ccl"
+#PATH=/usr/local/bin:$PATH:/opt/ccl
+# Set up for Google Earth
+PATH="/opt/google/earth/free/${PATH:+:${PATH}}"
+
+# Set up for Git utils
+PATH="/usr/local/src/git-utils/${PATH:+:${PATH}}"
+# Set up to find git-gui
+PATH="/usr/libexec/git-core/${PATH:+:${PATH}}"
+alias gitincoming='git fetch && git log ..origin/master'
+
+#
+# General aliases
+#
+
+alias rsyncthis='rsync -vzaCu -e ssh $*'
+#alias ls='ls --color=tty'
+#alias dulog='du -s * | sort -nr | tee DU.log'
+alias dulog='du -sh * | sort -hr | tee DU.log'
+alias findatime='find . -type f -a -atime -1 | egrep -v "jpg|ldc|jdc|part|rar|url" | sort'
+alias findatime2='find . -type f -a -atime -1 -a -name "*.mp4" -printf "%f\n" | sort'
+alias dfall='df -H /home /d? /run/media/jm/usb-drive* /net/storage0/home /net/storage0/r1 /net/storage0/media/*'
+alias pp='python -mjson.tool'
+alias whatslistening4='lsof -Pnl +M -i4'
+alias whatslistening6='lsof -Pnl +M -i6'
+alias urldecode='python3 -c "import sys, urllib.parse as ul; print(ul.unquote_plus(sys.argv[1]))"'
+alias urlencode='python3 -c "import sys, urllib.parse as ul; print (ul.quote_plus(sys.argv[1]))"'
+
+#
+# Aliases for make
+#
+
+#alias mfg='make -k $* | tee Make.log 2>&1'
+
+function mfg () {
+    make $* 2>&1 | tee make.log
+    }
+
+#alias mbg='make -k $* > Make.log 2>&1 &'
+
+function mbg () {
+    make $* 2>&1 > make.log &
+    }
+
+
+#
+# Aliases for docker & podman
+#
+
+alias docker-rm-images='sudo docker rmi $(sudo docker images -a -q)'
+alias docker-rm-containers='sudo docker rm $(sudo docker ps -a -f status=exited -q)'
+alias podman-rm-images='podman image rm $(podman images -a -q)'
+alias podman-rm-containers='podman rm $(podman ps -a -f status=exited -q)'
+
+#
+# Aliases for remote access.
+#
+
+alias sshfirewall='xterm -title firewall -e ssh 192.168.0.1 -l root -C -X &'
+alias sshpidora='xterm -title pidora -e ssh pidora -C -X &'
+alias sshpi3='xterm -title pi3 -e ssh pi3 -C -X &'
+alias sshpi4='xterm -title pi4 -e ssh pi4 -l pi -C -X &'
+alias sshnvidia='xterm -title nvidia-desktop -e ssh nvidia-desktop -l nvidia -C -X &'
+
+function sshlocal () {
+    xterm -title $1 -e ssh $1 -C -X &
+    }
+
+function sshroot () {
+    xterm -title $1-root -e ssh $1 -l root -C -X &
+    }
+
+# Remote access to vagrant VMs
+
+function sshv () {
+#    xterm -title $1 -e ssh $1 -l vagrant -o "UserKnownHostsFile /dev/null" -o StrictHostKeychecking=no -C -X &
+    xterm -title $1 -e ssh -p 2222 vagrant@127.0.0.1 -l vagrant -o "UserKnownHostsFile=/dev/null" -o StrictHostKeychecking=no -C -X &
+    }
+
+function lsshv () {
+#    lilyterm -s -T $1 -e ssh $1 -l vagrant -o "UserKnownHostsFile /dev/null" -o StrictHostKeychecking=no -C -X -Y &
+    lilyterm -s -T $1 -e ssh -p 2222 vagrant@127.0.0.1 -l vagrant -o "UserKnownHostsFile /dev/null" -o StrictHostKeychecking=no -C -X -Y &
+    }
+
+
+#
+# WINE stuff
+#
+
+alias wine32='export WINEPREFIX=$HOME/.wine32; export WINEARCH=wine32'
+alias wine64='export WINEPREFIX=$HOME/.wine64; export WINEARCH=wine64'
+
+# export PERL_LOCAL_LIB_ROOT="/home/jm/perl5";
+# export PERL_MB_OPT="--install_base /home/jm/perl5";
+# export PERL_MM_OPT="INSTALL_BASE=/home/jm/perl5";
+# export PERL5LIB="/home/jm/perl5/lib/perl5/x86_64-linux-thread-multi:/home/jm/perl5/lib/perl5";
+# export PATH="/home/jm/perl5/bin:$PATH";
+
+
+
+#export PATH="$HOME/.rvm/bin:$PATH" # Add RVM to PATH for scripting
+#[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
+
+SBP_PATH=/usr/local/src/sbp
+source /usr/local/src/sbp/sbp.bash
+
+#
+# Stuff for SimInABox
+#
+
+#export release_number=7
+#export version_number=0.0.${release_number}
+#export iteration_number=b000${release_number}
+
+#
+# Vestigial
+#
+
+alias hgstatus='hg status -m -a'
+
+#
+# CVS Stuff
+#
+
+export CVSROOT=storage0:/home/BACKUP-LOCAL/CVSROOT
+alias cvsstatus='cvs status | fgrep Status | fgrep -v Up'
+
+# Set up PostGreSQL
+# PATH="/usr/pgsql-11/bin/${PATH:+:${PATH}}"
+
+#
+# Conda stuff I will probably nuke
+#
+
+
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+
+# set up for correct SBCL
+PATH="/usr/local/bin/:${PATH:+${PATH}:}"
+
+# enable unsetting eval $(minikube docker-env)
+alias minikube-unset="unset DOCKER_HOST DOCKER_CERT_PATH DOCKER_TLS_VERIFY MINIKUBE_ACTIVE_DOCKERD _"
+# export HOSTALIASES=~/.hosts
